@@ -13,6 +13,8 @@ import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
 import StaffManagement from './components/StaffManagement';
 import RootLayout from './components/RootLayout'; // New component for layout
+import AssignRole from './components/AssignRole';
+import RoomManagement from './components/RoomManagement';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated, loading }) => {
@@ -69,51 +71,61 @@ const App = () => {
     };
   }, []);
 
-  // Memoize router to prevent unnecessary re-renders
   const router = useMemo(() => 
-    createBrowserRouter(
-      createRoutesFromElements(
-        <Route path="/" element={<RootLayout />}>
-          {/* Root redirect */}
-          <Route 
-            index 
-            element={
-              loading ? <div>Loading...</div> : 
-              (isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />)
-            } 
-          />
-          
-          {/* Public Routes */}
-          <Route 
-            path="/login" 
-            element={<Login setAuth={setIsAuthenticated} />} 
-          />
-          <Route path="/signup" element={<Signup />} />
-          
-          {/* Protected Dashboard Routes */}
-          <Route 
-              path="/dashboard/staff-management" 
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
-                  <StaffManagement />
-                </ProtectedRoute>
-              } 
-            >
-            {/* Nested dashboard routes */}
-            <Route 
-              path="/dashboard/staff-management" 
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
-                  <StaffManagement />
-                </ProtectedRoute>
-              } 
-            />
-            {/* You can add more nested routes here */}
-          </Route>
-        </Route>
-      )
-    ), [isAuthenticated, loading, userInfo]
-  );
+    createBrowserRouter([
+      {
+        path: '/',
+        element: isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />,
+      },
+      {
+        path: '/login',
+        element: <Login setAuth={setIsAuthenticated} />,
+      },
+      {
+        path: '/signup',
+        element: <Signup />,
+      },
+      {
+        path: '/dashboard',
+        element: <RootLayout />,
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
+                <Dashboard />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'staff-management',
+            element: (
+              <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
+                <StaffManagement />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'assign-role',
+            element: (
+              <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
+                <AssignRole />
+              </ProtectedRoute>
+            ),
+          },
+
+          {
+            path: 'room-managment',
+            element: (
+              <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
+                <RoomManagement />
+              </ProtectedRoute>
+            ),
+          },
+          // You can add more nested routes here
+        ],
+      },
+    ]), [isAuthenticated, loading]);
 
   return <RouterProvider router={router} />;
 };

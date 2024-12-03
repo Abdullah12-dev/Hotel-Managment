@@ -17,58 +17,69 @@ import {
   DialogContent,
   DialogActions,
   Snackbar,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-} from '@mui/icons-material';
-import {
-  addStaff,
-  editStaff,
-  deleteStaff,
-  fetchAllStaff,
-} from '../api'; // Adjust the import path as needed
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { addStaff, editStaff, deleteStaff, fetchAllStaff } from '../api'; // Adjust the import path as needed
 
 const StaffManagement = () => {
   const [staffList, setStaffList] = useState([]);
-  const [newStaff, setNewStaff] = useState({ name: '', email: '', position: '' });
+  const [filteredStaffList, setFilteredStaffList] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortConfig, setSortConfig] = useState({ field: '', direction: '' });
+  const [newStaff, setNewStaff] = useState({ name: '', email: '', phoneNumber: '', role: '' });
   const [openDialog, setOpenDialog] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
   const [error, setError] = useState('');
+
+  const roles = ['Receptionist', 'Manager', 'Housekeeping'];
 
   useEffect(() => {
     const loadStaff = async () => {
       try {
         const response = await fetchAllStaff();
-        console.log('Full Response:', response); // Debugging output
-        
-        // Handle nested data structure
-        if (
-          response &&
-          response.data &&
-          response.data.staff &&
-          Array.isArray(response.data.staff)
-        ) {
-          setStaffList(response.data.staff); // Extract the staff array
+        if (response && response.data && response.data.staff) {
+          setStaffList(response.data.staff);
+          setFilteredStaffList(response.data.staff); // Initialize filtered list
         } else {
-          throw new Error('Unexpected response format: ' + JSON.stringify(response));
+          throw new Error('Unexpected response format');
         }
       } catch (error) {
-        console.error('Error loading staff:', error.message);
-        setError('Failed to fetch staff data. Please try again.');
+        setError(error.message || 'Failed to fetch staff data. Please try again.');
       }
     };
-  
     loadStaff();
   }, []);
-  
-  
+
+  useEffect(() => {
+    let updatedList = staffList.filter((staff) =>
+      Object.values(staff)
+        .join(' ')
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    );
+
+    if (sortConfig.field) {
+      updatedList = updatedList.sort((a, b) => {
+        const aField = a[sortConfig.field];
+        const bField = b[sortConfig.field];
+        if (sortConfig.direction === 'asc') {
+          return aField > bField ? 1 : -1;
+        } else {
+          return aField < bField ? 1 : -1;
+        }
+      });
+    }
+
+    setFilteredStaffList(updatedList);
+  }, [staffList, searchQuery, sortConfig]);
 
   const handleOpenDialog = (staff = null) => {
     setEditingStaff(staff);
-    setNewStaff(staff ? { ...staff } : { name: '', email: '', position: '' });
+    setNewStaff(staff ? { ...staff } : { name: '', email: '', phoneNumber: '', role: '' });
     setOpenDialog(true);
   };
 
@@ -81,29 +92,34 @@ const StaffManagement = () => {
   const handleSaveStaff = async () => {
     try {
       if (editingStaff) {
-        // Edit existing staff
-        const updatedStaff = await editStaff(editingStaff.id, newStaff);
-        setStaffList(staffList.map(staff => 
-          staff.id === editingStaff.id ? updatedStaff.data : staff
-        ));
+        const updatedStaff = await editStaff(editingStaff._id, newStaff);
+        setStaffList((prev) =>
+          prev.map((staff) => (staff._id === editingStaff._id ? updatedStaff.data.staff : staff))
+        );
       } else {
-        // Add new staff
         const addedStaff = await addStaff(newStaff);
-        setStaffList([...staffList, addedStaff.data]);
+        setStaffList((prev) => [...prev, addedStaff.data.staff]);
       }
       handleCloseDialog();
     } catch (error) {
-      setError('Failed to save staff data. Please try again.');
+      setError(error.message || 'Failed to save staff data. Please try again.');
     }
   };
 
   const handleDeleteStaff = async (id) => {
     try {
       await deleteStaff(id);
-      setStaffList(staffList.filter((staff) => staff._id !== id));
+      setStaffList((prev) => prev.filter((staff) => staff._id !== id));
     } catch (error) {
-      setError('Failed to delete staff member. Please try again.');
+      setError(error.message || 'Failed to delete staff member. Please try again.');
     }
+  };
+
+  const handleSortChange = (field) => {
+    setSortConfig((prev) => ({
+      field,
+      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
   };
 
   return (
@@ -112,7 +128,16 @@ const StaffManagement = () => {
         Staff Management
       </Typography>
 
-      <Box sx={{ mb: 3 }}>
+      {/* Search Bar and Add Button */}
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 3 }}>
+        <TextField
+          variant="outlined"
+          label="Search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          fullWidth
+          sx={{ flex: 1 }}
+        />
         <Button
           variant="contained"
           color="primary"
@@ -123,88 +148,135 @@ const StaffManagement = () => {
         </Button>
       </Box>
 
-      <TableContainer component={Paper} elevation={2}>
+      {/* Sorting Combo Box for Mobile */}
+      <Box sx={{ display: { xs: 'block', md: 'none' }, mb: 2 }}>
+        <FormControl fullWidth variant="outlined">
+          <InputLabel>Sort By</InputLabel>
+          <Select
+            value={sortConfig.field}
+            onChange={(e) => handleSortChange(e.target.value)}
+            label="Sort By"
+          >
+            <MenuItem value="name">Name</MenuItem>
+            <MenuItem value="email">Email</MenuItem>
+            <MenuItem value="phoneNumber">Phone Number</MenuItem>
+            <MenuItem value="role">Role</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+
+      {/* Responsive Table */}
+      <TableContainer
+        component={Paper}
+        elevation={2}
+        sx={{ display: { xs: 'none', md: 'block' }, overflowX: 'auto' }}
+      >
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Position</TableCell>
+              <TableCell>
+                <Button onClick={() => handleSortChange('name')}>Name</Button>
+              </TableCell>
+              <TableCell>
+                <Button onClick={() => handleSortChange('email')}>Email</Button>
+              </TableCell>
+              <TableCell>
+                <Button onClick={() => handleSortChange('phoneNumber')}>Phone Number</Button>
+              </TableCell>
+              <TableCell>
+                <Button onClick={() => handleSortChange('role')}>Role</Button>
+              </TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {Array.isArray(staffList) && staffList.map((staff) => (
-                <TableRow key={staff.id}>
+            {filteredStaffList.map((staff) => (
+              <TableRow key={staff._id}>
                 <TableCell>{staff.name}</TableCell>
                 <TableCell>{staff.email}</TableCell>
-                <TableCell>{staff.position}</TableCell>
+                <TableCell>{staff.phoneNumber}</TableCell>
+                <TableCell>{staff.role}</TableCell>
                 <TableCell align="right">
-                    <IconButton
-                    color="primary"
-                    onClick={() => handleOpenDialog(staff)}
-                    >
+                  <IconButton color="primary" onClick={() => handleOpenDialog(staff)}>
                     <EditIcon />
-                    </IconButton>
-                    <IconButton
-                    color="error"
-                    onClick={() => handleDeleteStaff(staff._id)}
-                    >
+                  </IconButton>
+                  <IconButton color="error" onClick={() => handleDeleteStaff(staff._id)}>
                     <DeleteIcon />
-                    </IconButton>
+                  </IconButton>
                 </TableCell>
-                </TableRow>
+              </TableRow>
             ))}
-            </TableBody>
-
+          </TableBody>
         </Table>
       </TableContainer>
 
+      {/* Mobile View for Staff List */}
+      <Box sx={{ display: { xs: 'block', md: 'none' }, mt: 3 }}>
+        {filteredStaffList.map((staff) => (
+          <Paper key={staff._id} sx={{ p: 2, mb: 2 }}>
+            <Typography variant="h6">{staff.name}</Typography>
+            <Typography>Email: {staff.email}</Typography>
+            <Typography>Phone: {staff.phoneNumber}</Typography>
+            <Typography>Role: {staff.role}</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+              <IconButton color="primary" onClick={() => handleOpenDialog(staff)}>
+                <EditIcon />
+              </IconButton>
+              <IconButton color="error" onClick={() => handleDeleteStaff(staff._id)}>
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          </Paper>
+        ))}
+      </Box>
+
       {/* Staff Add/Edit Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {editingStaff ? 'Edit Staff Member' : 'Add New Staff Member'}
-        </DialogTitle>
+        <DialogTitle>{editingStaff ? 'Edit Staff Member' : 'Add New Staff Member'}</DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Name"
-                variant="outlined"
-                value={newStaff.name}
-                onChange={(e) => setNewStaff((prev) => ({ ...prev, name: e.target.value }))}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Email"
-                variant="outlined"
-                value={newStaff.email}
-                onChange={(e) => setNewStaff((prev) => ({ ...prev, email: e.target.value }))}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Position"
-                variant="outlined"
-                value={newStaff.position}
-                onChange={(e) => setNewStaff((prev) => ({ ...prev, position: e.target.value }))}
-              />
-            </Grid>
-          </Grid>
+          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              fullWidth
+              label="Name"
+              variant="outlined"
+              value={newStaff.name}
+              onChange={(e) => setNewStaff((prev) => ({ ...prev, name: e.target.value }))}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              variant="outlined"
+              value={newStaff.email}
+              onChange={(e) => setNewStaff((prev) => ({ ...prev, email: e.target.value }))}
+            />
+            <TextField
+              fullWidth
+              label="Phone Number"
+              variant="outlined"
+              value={newStaff.phoneNumber}
+              onChange={(e) => setNewStaff((prev) => ({ ...prev, phoneNumber: e.target.value }))}
+            />
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Role</InputLabel>
+              <Select
+                value={newStaff.role}
+                onChange={(e) => setNewStaff((prev) => ({ ...prev, role: e.target.value }))}
+                label="Role"
+              >
+                {roles.map((role) => (
+                  <MenuItem key={role} value={role}>
+                    {role}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="secondary">
             Cancel
           </Button>
-          <Button
-            onClick={handleSaveStaff}
-            color="primary"
-            variant="contained"
-          >
+          <Button onClick={handleSaveStaff} color="primary" variant="contained">
             Save
           </Button>
         </DialogActions>

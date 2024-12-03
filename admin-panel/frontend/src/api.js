@@ -119,5 +119,51 @@ export const fetchAllStaff = async () => {
   }
 };
 
+// Room API functions
+export const addRoom = async (roomData) => {
+  try {
+    const response = await API.post('/rooms/add', roomData);
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const editRoom = async (id, updates) => {
+  try {
+    const response = await API.put(`/rooms/edit/${id}`, updates);
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const deleteRoom = async (id) => {
+  try {
+    const response = await API.delete(`/rooms/delete/${id}`);
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const fetchAllRooms = async () => {
+  try {
+    const response = await API.get('/rooms/all');
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const fetchRoomById = async (id) => {
+  try {
+    const response = await API.get(`/rooms/${id}`);
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
 // Export error handler for potential custom use
 export { handleApiError };

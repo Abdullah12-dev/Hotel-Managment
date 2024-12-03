@@ -16,7 +16,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -49,12 +49,12 @@ const Dashboard = () => {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box>
       <CssBaseline />
 
       {/* Sidebar */}
       <AppSidebar
-        isSidebarOpen={Boolean(isSidebarOpen)}
+        isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
         drawerWidth={drawerWidth}
       />
@@ -79,7 +79,7 @@ const Dashboard = () => {
           <IconButton
             onClick={toggleSidebar}
             sx={{
-              display: { xs: "inline-flex", sm: "none" }, // Visible only on small screens
+              display: "inline-flex", // Visible only on small screens
               color: "white", // Change color of toggle button to white
             }}
           >
@@ -124,10 +124,10 @@ const Dashboard = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          pt: 8, // Add padding to compensate for the fixed top bar
+          pt: 8,
           px: 3,
           transition: "margin-left 0.3s ease",
-          ml: { xs: 0, sm: isSidebarOpen ? `${drawerWidth}px` : "0" },
+          ml: { xs: 0, sm: isSidebarOpen ? `${drawerWidth}px` : "0" }, // Ensure this is correct
         }}
       >
         {/* Dynamic Content */}

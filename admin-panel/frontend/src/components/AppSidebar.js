@@ -40,19 +40,14 @@ const AppSidebar = ({ isSidebarOpen, toggleSidebar, drawerWidth = 240 }) => {
       icon: <DashboardIcon />,
       children: [
         { text: "Manage Staff", path: "/dashboard/staff-management" },
-        { text: "Assign Roles", path: "/dashboard/reports" },
-        { text: "Performance Metrics", path: "/dashboard/reports" },
+        { text: "Assign Roles", path: "/dashboard/assign-role" },
       ],
     },
     {
-      text: "Settings",
-      icon: <SettingsIcon />,
-      children: [
-        { text: "Profile", path: "/settings/profile" },
-        { text: "Security", path: "/settings/security" },
-      ],
+      text: "Room Management",
+      icon: <DashboardIcon />,
+      path: "/dashboard/room-managment" ,
     },
-    { text: "Logout", icon: <ExitToAppIcon />, action: logout },
   ];
 
   return (

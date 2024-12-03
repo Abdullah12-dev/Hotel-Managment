@@ -65,7 +65,6 @@ const login = async (req, res) => {
   }
 };
 
-// Google Login Function
 const googleLogin = async (req, res) => {
   const { credential } = req.body;
 
@@ -73,8 +72,8 @@ const googleLogin = async (req, res) => {
     // Verify the Google token and extract user information
     const googleData = await verifyGoogleToken(credential);
 
-    // Check if the user already exists in the database
-    let user = await User.findOne({ providerId: googleData.sub, authProvider: 'google' });
+    // Check if a user exists with the same email
+    let user = await User.findOne({ email: googleData.email });
 
     // If user does not exist, create a new one
     if (!user) {
@@ -109,7 +108,6 @@ const googleLogin = async (req, res) => {
     });
   }
 };
-
 
 // Register user (local signup)
 const register = async (req, res) => {
