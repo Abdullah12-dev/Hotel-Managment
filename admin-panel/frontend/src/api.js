@@ -212,5 +212,39 @@ export const fetchServiceById = async (id) => {
   }
 };
 
+export const fetchSystemLogs = async () => {
+  try {
+      const response = await API.get('/system-logs/all');
+      return response;
+  } catch (error) {
+      throw handleApiError(error);
+  }
+};
+
+
+// Hotel Stats API functions
+
+// Fetch summary statistics (bookings, revenue, occupancy rate, etc.)
+export const fetchSummaryStats = async () => {
+  try {
+    const response = await API.get('/hotel-stats/summary');
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+// Fetch all booking data
+export const fetchBookingDetails = async () => {
+  try {
+    const response = await API.get(`/hotel-stats/bookings`);
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+
 // Export error handler for potential custom use
 export { handleApiError };

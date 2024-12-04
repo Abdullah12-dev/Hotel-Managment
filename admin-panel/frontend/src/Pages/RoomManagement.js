@@ -24,7 +24,7 @@ import {
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { addRoom, editRoom, deleteRoom, fetchAllRooms } from '../api'; // Adjust the import path as needed
-
+import GenerateReportButton from './GenerateReportButton';
 const RoomManagement = () => {
   const [roomList, setRoomList] = useState([]);
   const [filteredRoomList, setFilteredRoomList] = useState([]);
@@ -133,6 +133,15 @@ const RoomManagement = () => {
     }));
   };
 
+  const roomColumns = [
+    { label: 'Room Number', accessor: (row) => row.roomNumber },
+    { label: 'Category', accessor: (row) => row.category },
+    { label: 'Price', accessor: (row) => `$${row.price}` },
+    { label: 'Status', accessor: (row) => row.status },
+    { label: 'Description', accessor: (row) => row.description || 'N/A' },
+  ];
+
+  
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ textAlign: 'center', mb: 3 }}>
@@ -183,6 +192,14 @@ const RoomManagement = () => {
         </FormControl>
       </Box>
   
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb:2 }}>
+        <GenerateReportButton
+            data={filteredRoomList}
+            columns={roomColumns}
+            title="Rooms Report"
+          />
+      </Box>
+      
       {/* Responsive Table */}
       <TableContainer
           component={Paper}

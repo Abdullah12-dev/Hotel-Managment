@@ -28,10 +28,6 @@ const AppSidebar = ({ isSidebarOpen, toggleSidebar, drawerWidth = 240 }) => {
     setOpenMenu((prev) => ({ ...prev, [menu]: !prev[menu] }));
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
 
   const menuItems = [
     { text: "Home", icon: <HomeIcon />, path: "/" },
@@ -52,6 +48,17 @@ const AppSidebar = ({ isSidebarOpen, toggleSidebar, drawerWidth = 240 }) => {
       text: "Service Management",
       icon: <DashboardIcon />,
       path: "/dashboard/service-managment" ,
+    },
+    {
+      text: "Booking History",
+      icon: <DashboardIcon />,
+      path: "/dashboard/booking-history" ,
+    },
+    
+    {
+      text: "System Logs",
+      icon: <DashboardIcon />,
+      path: "/dashboard/systemLogs" ,
     },
   ];
 

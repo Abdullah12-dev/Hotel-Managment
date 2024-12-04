@@ -3,10 +3,12 @@ const router = express.Router();
 const roomController = require('../controllers/roomController'); // Adjust the import path as needed
 const authMiddleware = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
+const logMiddleware = require('../middlewares/logMiddleware');
 
 // Apply authentication and admin middleware
 router.use(authMiddleware);
 router.use(adminMiddleware);
+router.use(logMiddleware);
 
 // Define routes for room management
 router.post('/add', roomController.addRoom);

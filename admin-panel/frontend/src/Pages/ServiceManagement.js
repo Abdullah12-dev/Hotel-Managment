@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { addService, editService, deleteService, fetchAllServices } from '../api'; // Adjust the import path as needed
+import GenerateReportButton from './GenerateReportButton';
 
 const ServiceManagement = () => {
   const [serviceList, setServiceList] = useState([]);
@@ -127,6 +128,13 @@ const ServiceManagement = () => {
     }));
   };
 
+  const serviceColumns = [
+    { label: 'Name', accessor: (row) => row.name },
+    { label: 'Description', accessor: (row) => row.description || 'N/A' },
+    { label: 'Price', accessor: (row) => `$${row.price}` },
+    { label: 'Status', accessor: (row) => row.status },
+  ];
+  
   return (
     <Box sx={{ p: 3 }}>
     <Box sx={{ textAlign: 'center', mb: 3 }}>
@@ -173,6 +181,14 @@ const ServiceManagement = () => {
             <MenuItem value="status">Status</MenuItem>
           </Select>
         </FormControl>
+      </Box>
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb:2 }}>
+        <GenerateReportButton
+            data={filteredServiceList}
+            columns={serviceColumns}
+            title="Services Report"
+          />
       </Box>
 
       {/* Responsive Table */}

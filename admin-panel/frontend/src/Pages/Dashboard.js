@@ -1,104 +1,213 @@
-import React from 'react';
-import { 
-  Box, 
-  Paper, 
-  Typography, 
-  Card, 
-  CardContent, 
-  CardHeader 
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Typography,
+  Paper,
+  CircularProgress,
+  Card,
+  CardContent,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
-import { 
-  People as PeopleIcon, 
-  Work as WorkIcon, 
-  AttachMoney as MoneyIcon 
-} from '@mui/icons-material';
 
-const DashboardCard = ({ title, value, icon, color }) => (
-  <Card elevation={2} sx={{ height: '100%' }}>
-    <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <Box>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          {title}
-        </Typography>
-        <Typography variant="h4" color="primary">
-          {value}
-        </Typography>
-      </Box>
-      {React.cloneElement(icon, { 
-        sx: { 
-          fontSize: 60, 
-          color: color, 
-          opacity: 0.7 
-        } 
-      })}
-    </CardContent>
-  </Card>
-);
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import { fetchSummaryStats } from '../api'; // Ensure correct API path
 
 const Dashboard = () => {
+  const [summaryStats, setSummaryStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const response = await fetchSummaryStats();
+        // Ensure backend data matches frontend requirements
+        const mappedCategoryDistribution = response.data.categoryDistribution.map((item) => ({
+          category: item.category,
+          value: item.count,
+        }));
+        const mappedOccupancyTrend = response.data.revenue.byMonth.map((item) => ({
+          month: item.month,
+          rate: (response.data.occupancyRate / 100).toFixed(2),
+        }));
+
+        setSummaryStats({
+          ...response.data,
+          categoryDistribution: mappedCategoryDistribution,
+          occupancyRateTrend: mappedOccupancyTrend,
+        });
+      } catch (error) {
+        console.error('Error loading summary stats:', error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!summaryStats) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 5 }}>
+        <Typography variant="h6">No data available</Typography>
+      </Box>
+    );
+  }
+
+  const { bookings, revenue, categoryDistribution, occupancyRateTrend } = summaryStats;
+
   return (
-    <Box sx={{ flexGrow: 1, p: 3 }}>
+    <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Dashboard Overview
+        Hotel Management Dashboard
       </Typography>
-      
-      <Grid container spacing={3}>
-        {/* Quick Stats Cards */}
-        <Grid item xs={12} sm={4}>
-          <DashboardCard 
-            title="Total Employees" 
-            value="254" 
-            icon={<PeopleIcon />} 
-            color="#3f51b5" 
-          />
+  
+      {/* Summary Cards */}
+      <Grid container spacing={3} style={{ marginBottom: '16px' }}>
+        {/* Total Bookings */}
+        <Grid
+          size={{ xs: 12, md: 4 }}
+          display="flex"
+          justifyContent="center"
+          style={{ padding: '16px' }}
+        >
+          <Card sx={{ textAlign: 'center', boxShadow: 3, width: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Total Bookings
+              </Typography>
+              <Typography variant="h4">{bookings.total}</Typography>
+            </CardContent>
+          </Card>
         </Grid>
-        <Grid item xs={12} sm={4}>
-          <DashboardCard 
-            title="Active Projects" 
-            value="17" 
-            icon={<WorkIcon />} 
-            color="#ff9800" 
-          />
+  
+        {/* Revenue */}
+        <Grid
+          size={{ xs: 12, md: 4 }}
+          display="flex"
+          justifyContent="center"
+          style={{ padding: '16px' }}
+        >
+          <Card sx={{ textAlign: 'center', boxShadow: 3, width: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Revenue
+              </Typography>
+              <Typography variant="h4">${revenue.total}</Typography>
+            </CardContent>
+          </Card>
         </Grid>
-        <Grid item xs={12} sm={4}>
-          <DashboardCard 
-            title="Revenue" 
-            value="$456,890" 
-            icon={<MoneyIcon />} 
-            color="#4caf50" 
-          />
+  
+        {/* Occupancy Rate */}
+        <Grid
+          size={{ xs: 12, md: 4 }}
+          display="flex"
+          justifyContent="center"
+          style={{ padding: '16px' }}
+        >
+          <Card sx={{ textAlign: 'center', boxShadow: 3, width: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Occupancy Rate
+              </Typography>
+              <Typography variant="h4">{summaryStats.occupancyRate}%</Typography>
+            </CardContent>
+          </Card>
         </Grid>
-
-        {/* Recent Activities Section */}
-        <Grid item xs={12} md={8}>
-          <Paper elevation={2} sx={{ p: 3 }}>
+      </Grid>
+  
+      {/* Graphs Section */}
+      <Grid container spacing={4}>
+        {/* Bar Chart for Revenue */}
+        <Grid
+          size={{ xs: 12, md: 6 }}
+          display="flex"
+          justifyContent="center"
+          style={{ padding: '16px' }}
+        >
+          <Paper sx={{ p: 3, height: 300, width: '100%' }}>
             <Typography variant="h6" gutterBottom>
-              Recent Activities
+              Revenue by Month
             </Typography>
-            {/* Add a list of recent activities or a table */}
-            <Typography variant="body2" color="text.secondary">
-              No recent activities to display.
-            </Typography>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={revenue.byMonth}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="amount" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
           </Paper>
         </Grid>
-
-        {/* Quick Actions Section */}
-        <Grid item xs={12} md={4}>
-          <Paper elevation={2} sx={{ p: 3 }}>
+  
+        {/* Pie Chart for Room Category Distribution */}
+        <Grid
+          size={{ xs: 12, md: 6 }}
+          display="flex"
+          justifyContent="center"
+          style={{ padding: '16px' }}
+        >
+          <Paper sx={{ p: 3, height: 300, width: '100%' }}>
             <Typography variant="h6" gutterBottom>
-              Quick Actions
+              Room Category Distribution
             </Typography>
-            {/* Add buttons or quick action links */}
-            <Typography variant="body2" color="text.secondary">
-              Quick actions will be added soon.
-            </Typography>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={categoryDistribution}
+                  dataKey="value"
+                  nameKey="category"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                >
+                  {categoryDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
           </Paper>
         </Grid>
+  
+
       </Grid>
     </Box>
   );
+  
 };
 
 export default Dashboard;

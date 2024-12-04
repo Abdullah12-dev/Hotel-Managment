@@ -3,10 +3,12 @@ const router = express.Router();
 const serviceController = require('../controllers/serviceController'); // Adjust the import path as needed
 const authMiddleware = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
+const logMiddleware = require('../middlewares/logMiddleware');
 
 // Apply authentication and admin middleware
 router.use(authMiddleware);
 router.use(adminMiddleware);
+router.use(logMiddleware);
 
 // Define routes for service management
 router.post('/add', serviceController.addService);

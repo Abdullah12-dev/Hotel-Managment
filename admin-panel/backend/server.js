@@ -7,6 +7,8 @@ const { errorHandler } = require('./middlewares/errorMiddleware');
 const staffRoutes = require('./routes/staffRoutes');
 const roomRoute =require('./routes/roomRoutes');
 const seviceRoutes =require('./routes/serviceRoutes');
+const hotelStatsRoutes = require('./routes/hotelStatsRoutes');
+const logRoutes = require('./routes/logRoutes');
 dotenv.config();
 connectDB();
 
@@ -19,6 +21,8 @@ app.use('/auth', authRoutes);
 app.use('/staff',staffRoutes)
 app.use('/rooms',roomRoute)
 app.use('/services',seviceRoutes)
+app.use('/hotel-stats', hotelStatsRoutes);
+app.use('/system-logs', logRoutes);
 
 // Error handler
 app.use(errorHandler);

@@ -22,9 +22,9 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { addStaff, editStaff, deleteStaff, fetchAllStaff } from '../api'; // Adjust the import path as needed
-
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import { addStaff, editStaff, deleteStaff, fetchAllStaff, getPerformanceMetrics } from '../api'; // Adjust the import path as needed
+import GenerateReportButton from './GenerateReportButton';
 const StaffManagement = () => {
   const [staffList, setStaffList] = useState([]);
   const [filteredStaffList, setFilteredStaffList] = useState([]);
@@ -32,7 +32,9 @@ const StaffManagement = () => {
   const [sortConfig, setSortConfig] = useState({ field: '', direction: '' });
   const [newStaff, setNewStaff] = useState({ name: '', email: '', phoneNumber: '', role: '' });
   const [openDialog, setOpenDialog] = useState(false);
+  const [viewMetricsDialog, setViewMetricsDialog] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
+  const [performanceMetrics, setPerformanceMetrics] = useState(null);
   const [error, setError] = useState('');
 
   const roles = ['Receptionist', 'Manager', 'Housekeeping'];
@@ -89,6 +91,16 @@ const StaffManagement = () => {
     setError('');
   };
 
+  const handleViewPerformance = async (staffId) => {
+    try {
+      const response = await getPerformanceMetrics(staffId);
+      setPerformanceMetrics(response.data.performanceMetrics);
+      setViewMetricsDialog(true);
+    } catch (error) {
+      setError(error.message || 'Failed to fetch performance metrics. Please try again.');
+    }
+  };
+
   const handleSaveStaff = async () => {
     try {
       if (editingStaff) {
@@ -122,11 +134,19 @@ const StaffManagement = () => {
     }));
   };
 
+  const staffColumns = [
+    { label: 'Name', accessor: (row) => row.name },
+    { label: 'Email', accessor: (row) => row.email },
+    { label: 'Phone Number', accessor: (row) => row.phoneNumber },
+    { label: 'Role', accessor: (row) => row.role },
+  ];
+  
+  
   return (
     <Box sx={{ p: 3 }}>
-    <Box sx={{ textAlign: 'center', mb: 3 }}>
+      <Box sx={{ textAlign: 'center', mb: 3 }}>
         <Typography variant="h4" gutterBottom>
-        Staff Management
+          Staff Management
         </Typography>
       </Box>
 
@@ -169,31 +189,38 @@ const StaffManagement = () => {
           </Select>
         </FormControl>
       </Box>
-
-        <TableContainer
-          component={Paper}
-          elevation={2}
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            overflowX: 'auto',
-            borderRadius: '12px', // Adds rounded corners
-            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', // Subtle shadow for better UI
-          }}
-        >
-          <Table>
-            <TableHead
-              sx={{
-                backgroundColor: '#333', // Dark header background
-                '& th': {
-                  color: '#fff', // White text color
-                  fontWeight: 'bold', // Make the text bold
-                  textAlign:'center'
-                },
-              }}
-            >
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb:2 }}>
+        <GenerateReportButton
+            data={filteredStaffList}
+            columns={staffColumns}
+            title="Staff Report"
+          />
+      </Box>
+      {/* Responsive Table */}
+      <TableContainer
+        component={Paper}
+        elevation={2}
+        sx={{
+          display: { xs: 'none', md: 'block' },
+          overflowX: 'auto',
+          borderRadius: '12px', // Adds rounded corners
+          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', // Subtle shadow for better UI
+        }}
+      >
+        <Table>
+          <TableHead
+            sx={{
+              backgroundColor: '#333', // Dark header background
+              '& th': {
+                color: '#fff', // White text color
+                fontWeight: 'bold', // Make the text bold
+                textAlign: 'center',
+              },
+            }}
+          >
             <TableRow>
               <TableCell>
-                <Button onClick={() => handleSortChange('name')}  sx={{ color: '#fff' }}>Name</Button>
+                <Button onClick={() => handleSortChange('name')} sx={{ color: '#fff' }}>Name</Button>
               </TableCell>
               <TableCell>
                 <Button onClick={() => handleSortChange('email')} sx={{ color: '#fff' }}>Email</Button>
@@ -202,7 +229,7 @@ const StaffManagement = () => {
                 <Button onClick={() => handleSortChange('phoneNumber')} sx={{ color: '#fff' }}>Phone Number</Button>
               </TableCell>
               <TableCell>
-                <Button onClick={() => handleSortChange('role')}  sx={{ color: '#fff' }} >Role</Button>
+                <Button onClick={() => handleSortChange('role')} sx={{ color: '#fff' }}>Role</Button>
               </TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
@@ -218,6 +245,9 @@ const StaffManagement = () => {
                   <IconButton color="primary" onClick={() => handleOpenDialog(staff)}>
                     <EditIcon />
                   </IconButton>
+                  <IconButton color="info" onClick={() => handleViewPerformance(staff._id)}>
+                    <VisibilityIcon />
+                  </IconButton>
                   <IconButton color="error" onClick={() => handleDeleteStaff(staff._id)}>
                     <DeleteIcon />
                   </IconButton>
@@ -227,37 +257,8 @@ const StaffManagement = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb:2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-        >
-          Add New Staff
-        </Button>
-      </Box>
-      {/* Mobile View for Staff List */}
-      <Box sx={{ display: { xs: 'block', md: 'none' }, mt: 3 }}>
-        {filteredStaffList.map((staff) => (
-          <Paper key={staff._id} sx={{ p: 2, mb: 2 }}>
-            <Typography variant="h6">{staff.name}</Typography>
-            <Typography>Email: {staff.email}</Typography>
-            <Typography>Phone: {staff.phoneNumber}</Typography>
-            <Typography>Role: {staff.role}</Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
-              <IconButton color="primary" onClick={() => handleOpenDialog(staff)}>
-                <EditIcon />
-              </IconButton>
-              <IconButton color="error" onClick={() => handleDeleteStaff(staff._id)}>
-                <DeleteIcon />
-              </IconButton>
-            </Box>
-          </Paper>
-        ))}
-      </Box>
-
-      {/* Staff Add/Edit Dialog */}
+      
+      {/* Add/Edit Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>{editingStaff ? 'Edit Staff Member' : 'Add New Staff Member'}</DialogTitle>
         <DialogContent>
@@ -305,6 +306,26 @@ const StaffManagement = () => {
           </Button>
           <Button onClick={handleSaveStaff} color="primary" variant="contained">
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* View Performance Metrics Dialog */}
+      <Dialog open={viewMetricsDialog} onClose={() => setViewMetricsDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Performance Metrics</DialogTitle>
+        <DialogContent>
+          {performanceMetrics ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Typography>Completed Tasks: {performanceMetrics.completedTasks}</Typography>
+              <Typography>Customer Ratings: {performanceMetrics.customerRatings}</Typography>
+            </Box>
+          ) : (
+            <Typography>Loading...</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setViewMetricsDialog(false)} color="primary">
+            Close
           </Button>
         </DialogActions>
       </Dialog>

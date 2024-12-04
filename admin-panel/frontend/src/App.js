@@ -16,6 +16,8 @@ import RootLayout from './Pages/RootLayout'; // New component for layout
 import AssignRole from './Pages/AssignRole';
 import RoomManagement from './Pages/RoomManagement';
 import ServiceManagement from './Pages/ServiceManagement';
+import BookingHistory from './Pages/BookingHistory';
+import SystemLogs from './Pages/SystemLogs';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated, loading }) => {
@@ -128,6 +130,22 @@ const App = () => {
             element: (
               <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
                 <ServiceManagement />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'booking-history',
+            element: (
+              <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
+                <BookingHistory />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'systemLogs',
+            element: (
+              <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
+                <SystemLogs />
               </ProtectedRoute>
             ),
           },
