@@ -48,6 +48,11 @@ const AppSidebar = ({ isSidebarOpen, toggleSidebar, drawerWidth = 240 }) => {
       icon: <DashboardIcon />,
       path: "/dashboard/room-managment" ,
     },
+    {
+      text: "Service Management",
+      icon: <DashboardIcon />,
+      path: "/dashboard/service-managment" ,
+    },
   ];
 
   return (

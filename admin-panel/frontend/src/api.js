@@ -165,5 +165,52 @@ export const fetchRoomById = async (id) => {
   }
 };
 
+
+// Service API functions
+export const addService = async (serviceData) => {
+  try {
+    const response = await API.post('/services/add', serviceData);
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const editService = async (id, updates) => {
+  try {
+    const response = await API.put(`/services/edit/${id}`, updates);
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const deleteService = async (id) => {
+  try {
+    const response = await API.delete(`/services/delete/${id}`);
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const fetchAllServices = async () => {
+  try {
+    const response = await API.get('/services/all');
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const fetchServiceById = async (id) => {
+  try {
+    const response = await API.get(`/services/${id}`);
+    return response;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
 // Export error handler for potential custom use
 export { handleApiError };

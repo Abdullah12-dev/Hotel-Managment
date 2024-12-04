@@ -124,28 +124,33 @@ const StaffManagement = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ textAlign: 'center', mb: 3 }}>
+        <Typography variant="h4" gutterBottom>
         Staff Management
-      </Typography>
+        </Typography>
+      </Box>
 
-      {/* Search Bar and Add Button */}
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 3 }}>
+      {/* Search Bar*/}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center', // Centers the search bar
+          mb: 3,
+        }}
+      >
         <TextField
           variant="outlined"
           label="Search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          fullWidth
-          sx={{ flex: 1 }}
+          sx={{
+            width: '100%', // Makes it responsive
+            maxWidth: 400, // Sets a decent width
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '50px', // Adds rounded corners
+            },
+          }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-        >
-          Add New Staff
-        </Button>
       </Box>
 
       {/* Sorting Combo Box for Mobile */}
@@ -165,26 +170,39 @@ const StaffManagement = () => {
         </FormControl>
       </Box>
 
-      {/* Responsive Table */}
-      <TableContainer
-        component={Paper}
-        elevation={2}
-        sx={{ display: { xs: 'none', md: 'block' }, overflowX: 'auto' }}
-      >
-        <Table>
-          <TableHead>
+        <TableContainer
+          component={Paper}
+          elevation={2}
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            overflowX: 'auto',
+            borderRadius: '12px', // Adds rounded corners
+            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', // Subtle shadow for better UI
+          }}
+        >
+          <Table>
+            <TableHead
+              sx={{
+                backgroundColor: '#333', // Dark header background
+                '& th': {
+                  color: '#fff', // White text color
+                  fontWeight: 'bold', // Make the text bold
+                  textAlign:'center'
+                },
+              }}
+            >
             <TableRow>
               <TableCell>
-                <Button onClick={() => handleSortChange('name')}>Name</Button>
+                <Button onClick={() => handleSortChange('name')}  sx={{ color: '#fff' }}>Name</Button>
               </TableCell>
               <TableCell>
-                <Button onClick={() => handleSortChange('email')}>Email</Button>
+                <Button onClick={() => handleSortChange('email')} sx={{ color: '#fff' }}>Email</Button>
               </TableCell>
               <TableCell>
-                <Button onClick={() => handleSortChange('phoneNumber')}>Phone Number</Button>
+                <Button onClick={() => handleSortChange('phoneNumber')} sx={{ color: '#fff' }}>Phone Number</Button>
               </TableCell>
               <TableCell>
-                <Button onClick={() => handleSortChange('role')}>Role</Button>
+                <Button onClick={() => handleSortChange('role')}  sx={{ color: '#fff' }} >Role</Button>
               </TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
@@ -209,7 +227,16 @@ const StaffManagement = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb:2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => handleOpenDialog()}
+        >
+          Add New Staff
+        </Button>
+      </Box>
       {/* Mobile View for Staff List */}
       <Box sx={{ display: { xs: 'block', md: 'none' }, mt: 3 }}>
         {filteredStaffList.map((staff) => (

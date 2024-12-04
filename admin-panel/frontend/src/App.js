@@ -8,13 +8,14 @@ import {
   Outlet 
 } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import Dashboard from './components/Dashboard';
-import StaffManagement from './components/StaffManagement';
-import RootLayout from './components/RootLayout'; // New component for layout
-import AssignRole from './components/AssignRole';
-import RoomManagement from './components/RoomManagement';
+import Login from './Pages/Login';
+import Signup from './Pages/Signup';
+import Dashboard from './Pages/Dashboard';
+import StaffManagement from './Pages/StaffManagement';
+import RootLayout from './Pages/RootLayout'; // New component for layout
+import AssignRole from './Pages/AssignRole';
+import RoomManagement from './Pages/RoomManagement';
+import ServiceManagement from './Pages/ServiceManagement';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated, loading }) => {
@@ -122,6 +123,15 @@ const App = () => {
               </ProtectedRoute>
             ),
           },
+          {
+            path: 'service-managment',
+            element: (
+              <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
+                <ServiceManagement />
+              </ProtectedRoute>
+            ),
+          },
+
           // You can add more nested routes here
         ],
       },

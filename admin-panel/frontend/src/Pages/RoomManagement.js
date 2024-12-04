@@ -135,30 +135,36 @@ const RoomManagement = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Room Management
-      </Typography>
+      <Box sx={{ textAlign: 'center', mb: 3 }}>
+        <Typography variant="h4" gutterBottom>
+          Room Management
+        </Typography>
+      </Box>
+
   
-      {/* Search Bar and Add Button */}
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 3 }}>
+      {/* Search Bar*/}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center', // Centers the search bar
+          mb: 3,
+        }}
+      >
         <TextField
           variant="outlined"
           label="Search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          fullWidth
-          sx={{ flex: 1 }}
+          sx={{
+            width: '100%', // Makes it responsive
+            maxWidth: 400, // Sets a decent width
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '50px', // Adds rounded corners
+            },
+          }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-          sx={{ alignSelf: { xs: 'flex-start', md: 'center' } }}
-        >
-          Add New Room
-        </Button>
       </Box>
+
   
       {/* Sorting Combo Box for Mobile */}
       <Box sx={{ display: { xs: 'block', md: 'none' }, mb: 2 }}>
@@ -179,24 +185,38 @@ const RoomManagement = () => {
   
       {/* Responsive Table */}
       <TableContainer
-        component={Paper}
-        elevation={2}
-        sx={{ display: { xs: 'none', md: 'block' }, overflowX: 'auto' }}
-      >
-        <Table>
-          <TableHead>
+          component={Paper}
+          elevation={2}
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            overflowX: 'auto',
+            borderRadius: '12px', // Adds rounded corners
+            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', // Subtle shadow for better UI
+          }}
+        >
+          <Table>
+            <TableHead
+              sx={{
+                backgroundColor: '#333', // Dark header background
+                '& th': {
+                  color: '#fff', // White text color
+                  fontWeight: 'bold', // Make the text bold
+                  textAlign:'center'
+                },
+              }}
+            >
             <TableRow>
               <TableCell>
-                <Button onClick={() => handleSortChange('roomNumber')}>Room Number</Button>
+                <Button onClick={() => handleSortChange('roomNumber')} sx={{ color: '#fff' }}>Room Number</Button>
               </TableCell>
               <TableCell>
-                <Button onClick={() => handleSortChange('category')}>Category</Button>
+                <Button onClick={() => handleSortChange('category')}sx={{ color: '#fff' }}>Category</Button>
               </TableCell>
               <TableCell>
-                <Button onClick={() => handleSortChange('price')}>Price</Button>
+                <Button onClick={() => handleSortChange('price')} sx={{ color: '#fff' }}>Price</Button>
               </TableCell>
               <TableCell>
-                <Button onClick={() => handleSortChange('status')}>Status</Button>
+                <Button onClick={() => handleSortChange('status')} sx={{ color: '#fff' }}>Status</Button>
               </TableCell>
               <TableCell>Description</TableCell>
               <TableCell align="right">Actions</TableCell>
@@ -224,6 +244,19 @@ const RoomManagement = () => {
         </Table>
       </TableContainer>
   
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb:2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => handleOpenDialog()}
+        >
+          Add New Room
+        </Button>
+      </Box>
+
+
+
       {/* Mobile View for Room List */}
       <Box sx={{ display: { xs: 'block', md: 'none' } }}>
         {filteredRoomList.map((room) => (
@@ -244,6 +277,8 @@ const RoomManagement = () => {
           </Paper>
         ))}
       </Box>
+      
+
   
       {/* Room Add/Edit Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
