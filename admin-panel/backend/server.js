@@ -9,6 +9,7 @@ const roomRoute =require('./routes/roomRoutes');
 const seviceRoutes =require('./routes/serviceRoutes');
 const hotelStatsRoutes = require('./routes/hotelStatsRoutes');
 const logRoutes = require('./routes/logRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 dotenv.config();
 connectDB();
 
@@ -23,6 +24,8 @@ app.use('/rooms',roomRoute)
 app.use('/services',seviceRoutes)
 app.use('/hotel-stats', hotelStatsRoutes);
 app.use('/system-logs', logRoutes);
+app.use('/notifications', notificationRoutes);
+
 
 // Error handler
 app.use(errorHandler);
