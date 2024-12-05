@@ -13,8 +13,6 @@ import Grid from '@mui/material/Grid2';
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   PieChart,
   Pie,
   Cell,

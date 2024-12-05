@@ -13,12 +13,12 @@ import Signup from './Pages/Signup';
 import Dashboard from './Pages/Dashboard';
 import StaffManagement from './Pages/StaffManagement';
 import RootLayout from './Pages/RootLayout'; // New component for layout
-import AssignRole from './Pages/AssignRole';
+import NotifyStaff from './Pages/NotifyStaff';
 import RoomManagement from './Pages/RoomManagement';
 import ServiceManagement from './Pages/ServiceManagement';
 import BookingHistory from './Pages/BookingHistory';
 import SystemLogs from './Pages/SystemLogs';
-
+import WeatherDashboard from './Pages/WeatherDashboard';
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated, loading }) => {
   if (loading) {
@@ -109,10 +109,10 @@ const App = () => {
             ),
           },
           {
-            path: 'assign-role',
+            path: 'NotifyStaff',
             element: (
               <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
-                <AssignRole />
+                <NotifyStaff />
               </ProtectedRoute>
             ),
           },
@@ -146,6 +146,14 @@ const App = () => {
             element: (
               <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
                 <SystemLogs />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'weatherDashboard',
+            element: (
+              <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
+                <WeatherDashboard />
               </ProtectedRoute>
             ),
           },

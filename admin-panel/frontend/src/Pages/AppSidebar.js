@@ -36,7 +36,7 @@ const AppSidebar = ({ isSidebarOpen, toggleSidebar, drawerWidth = 240 }) => {
       icon: <DashboardIcon />,
       children: [
         { text: "Manage Staff", path: "/dashboard/staff-management" },
-        { text: "Assign Roles", path: "/dashboard/assign-role" },
+        { text: "Notify Staff", path: "/dashboard/NotifyStaff" },
       ],
     },
     {
@@ -60,6 +60,12 @@ const AppSidebar = ({ isSidebarOpen, toggleSidebar, drawerWidth = 240 }) => {
       icon: <DashboardIcon />,
       path: "/dashboard/systemLogs" ,
     },
+    {
+      text: "Weather Conditions",
+      icon: <DashboardIcon />,
+      path: "/dashboard/weatherDashboard" ,
+    },
+
   ];
 
   return (

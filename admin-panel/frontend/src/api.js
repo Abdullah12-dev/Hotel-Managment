@@ -244,6 +244,49 @@ export const fetchBookingDetails = async () => {
   }
 };
 
+export const sendNotification = async ({ staffId, email, phoneNumber, subject, message }) => {
+  try {
+    
+    const response = await API.post('/notifications/send', {
+      staffId,
+      email,
+      phoneNumber,
+      subject,
+      message,
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+
+const WEATHER_API_BASE_URL = 'https://api.openweathermap.org/data/2.5/';
+const WEATHER_API_KEY = '07c4fc833f325d21777a7bff1522cf45'; // Replace with your OpenWeather API key
+// Weather API Functions
+export const fetchWeatherData = async (city, lat, lon) => {
+  try {
+    const endpoint = city
+      ? `${WEATHER_API_BASE_URL}weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric`
+      : `${WEATHER_API_BASE_URL}weather?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric`;
+    const response = await axios.get(endpoint);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+export const fetchWeatherDataByCoords = async (lat, lon) => {
+  try {
+    const endpoint = `${WEATHER_API_BASE_URL}weather?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric`;
+    const response = await axios.get(endpoint);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
 
 
 // Export error handler for potential custom use
