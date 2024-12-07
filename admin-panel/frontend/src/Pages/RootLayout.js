@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AppSidebar from "./AppSidebar"; // Adjust the import path as needed
+import AppSidebar from "./components/AppSidebar"; // Adjust the import path as needed
 import { Outlet } from "react-router-dom";
 import {
   Box,

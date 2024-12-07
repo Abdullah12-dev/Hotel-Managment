@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/system';
 import { fetchWeatherData, fetchForecastData } from '../api';
-import WeatherDetails from './WeatherDetails';
+import WeatherDetails from './components/WeatherDetails';
 
 const Container = styled(Box)(({ theme }) => ({
   backgroundColor: '#f5f5f5',

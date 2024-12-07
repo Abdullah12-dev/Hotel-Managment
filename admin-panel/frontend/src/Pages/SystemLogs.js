@@ -1,24 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Snackbar,
-} from '@mui/material';
-import GenerateReportButton from './GenerateReportButton';
-import { fetchSystemLogs } from '../api'; // Ensure this API function is implemented to fetch logs from the backend.
+import { Box, Typography, Snackbar } from '@mui/material';
+import { fetchSystemLogs } from '../api';
+import GenericTable from './components/GenericTable'; // Generic Table Component
+import SearchBar from './components/SearchBar';
+import SortControl from './components/SortControl';
+import GenerateReportButton from './components/GenerateReportButton';
+import CardView from './components/CardView';
+
+// Utility function to safely get nested values
+const getNestedValue = (obj, path) => {
+  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+};
 
 const SystemLogs = () => {
   const [logList, setLogList] = useState([]);
@@ -46,21 +38,34 @@ const SystemLogs = () => {
 
   useEffect(() => {
     let updatedList = logList.filter((log) =>
-      Object.values(log)
-        .join(' ')
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+      Object.values(log).join(' ').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    // Sorting logic
     if (sortConfig.field) {
       updatedList = updatedList.sort((a, b) => {
-        const aField = sortConfig.field === 'user' ? a.user?.name : a[sortConfig.field];
-        const bField = sortConfig.field === 'user' ? b.user?.name : b[sortConfig.field];
-        if (sortConfig.direction === 'asc') {
-          return aField > bField ? 1 : -1;
-        } else {
-          return aField < bField ? 1 : -1;
+        // Use getNestedValue for dynamic field access (for example, 'user.name')
+        const aField = getNestedValue(a, sortConfig.field);
+        const bField = getNestedValue(b, sortConfig.field);
+
+        // If values are not defined, return 0 (no change in order)
+        if (aField === undefined || bField === undefined) return 0;
+
+        // String comparison for non-timestamp fields
+        if (typeof aField === 'string' && typeof bField === 'string') {
+          return sortConfig.direction === 'asc' ? aField.localeCompare(bField) : bField.localeCompare(aField);
         }
+
+        // If the field is a timestamp, compare date values
+        if (sortConfig.field === 'timestamp') {
+          const aDate = new Date(aField);
+          const bDate = new Date(bField);
+          if (isNaN(aDate) || isNaN(bDate)) return 0; // Handle invalid dates
+          return sortConfig.direction === 'asc' ? aDate - bDate : bDate - aDate;
+        }
+
+        // Default number comparison
+        return sortConfig.direction === 'asc' ? aField - bField : bField - aField;
       });
     }
 
@@ -74,144 +79,51 @@ const SystemLogs = () => {
     }));
   };
 
-  const columns = [
-    { label: 'User Name', accessor: (row) => row.user?.name || 'N/A' },
-    { label: 'User Email', accessor: (row) => row.user?.email || 'N/A' },
-    { label: 'Action', accessor: (row) => row.action || 'N/A' },
-    { label: 'Timestamp', accessor: (row) => new Date(row.timestamp).toLocaleString() },
+  const logColumns = [
+    { label: 'User Name', accessor: 'user.name' }, // Use dot notation for nested fields
+    { label: 'User Email', accessor: 'user.email' },
+    { label: 'Action', accessor: 'action' },
+    { label: 'Timestamp', accessor: 'timestamp' },
   ];
+
 
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ textAlign: 'center', mb: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          System Logs
-        </Typography>
+        <Typography variant="h4" gutterBottom>System Logs</Typography>
       </Box>
 
-      {/* Search Bar */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          mb: 3,
-        }}
-      >
-        <TextField
-          variant="outlined"
-          label="Search"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{
-            width: '100%',
-            maxWidth: 400,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '50px',
-            },
-          }}
-        />
-      </Box>
-
-      {/* Sorting Combo Box for Mobile */}
-      <Box sx={{ display: { xs: 'block', md: 'none' }, mb: 2 }}>
-        <FormControl fullWidth variant="outlined">
-          <InputLabel>Sort By</InputLabel>
-          <Select
-            value={sortConfig.field}
-            onChange={(e) => handleSortChange(e.target.value)}
-            label="Sort By"
-          >
-            <MenuItem value="user">User Name</MenuItem>
-            <MenuItem value="action">Action</MenuItem>
-            <MenuItem value="timestamp">Timestamp</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
+      <SearchBar value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+      <SortControl value={sortConfig.field} onChange={handleSortChange} fields={['user.name', 'action', 'timestamp']} />
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb: 2 }}>
         <GenerateReportButton
           data={filteredLogList}
-          columns={columns}
+          columns={logColumns}
           title="System Logs Report"
         />
       </Box>
 
-      {/* Responsive Table */}
-      <TableContainer
-        component={Paper}
-        elevation={2}
-        sx={{
-          display: { xs: 'none', md: 'block' },
-          overflowX: 'auto',
-          borderRadius: '12px',
-          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <Table>
-          <TableHead
-            sx={{
-              backgroundColor: '#333',
-              '& th': {
-                color: '#fff',
-                fontWeight: 'bold',
-              },
-            }}
-          >
-            <TableRow>
-              <TableCell>
-                <Button onClick={() => handleSortChange('user')} sx={{ color: '#fff' }}>
-                  User Name
-                </Button>
-              </TableCell>
-              <TableCell>
-                <Button onClick={() => handleSortChange('email')} sx={{ color: '#fff' }}>
-                  Email
-                </Button>
-              </TableCell>
-              <TableCell>
-                <Button onClick={() => handleSortChange('action')} sx={{ color: '#fff' }}>
-                  Action
-                </Button>
-              </TableCell>
-              <TableCell>
-                <Button onClick={() => handleSortChange('timestamp')} sx={{ color: '#fff' }}>
-                  Timestamp
-                </Button>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredLogList.map((log) => (
-              <TableRow key={log._id}>
-                <TableCell>{log.user?.name || 'N/A'}</TableCell>
-                <TableCell>{log.user?.email || 'N/A'}</TableCell>
-                <TableCell>{log.action || 'N/A'}</TableCell>
-                <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Mobile View for Logs */}
-      <Box sx={{ display: { xs: 'block', md: 'none' }, mt: 3 }}>
-        {filteredLogList.map((log) => (
-          <Paper key={log._id} sx={{ p: 2, mb: 2 }}>
-            <Typography variant="h6">User Name: {log.user?.name || 'N/A'}</Typography>
-            <Typography>User Email: {log.user?.email || 'N/A'}</Typography>
-            <Typography>Action: {log.action || 'N/A'}</Typography>
-            <Typography>Timestamp: {new Date(log.timestamp).toLocaleString()}</Typography>
-          </Paper>
-        ))}
-      </Box>
-
-      {/* Error Snackbar */}
-      <Snackbar
-        open={Boolean(error)}
-        message={error}
-        autoHideDuration={6000}
-        onClose={() => setError('')}
+      {/* Table View */}
+      <GenericTable
+        data={filteredLogList}
+        columns={logColumns}
+        onSort={handleSortChange}
+        sortConfig={sortConfig}
       />
+
+      {/* Card View */}
+      <CardView
+        data={filteredLogList}
+        fields={[
+          { name: 'user.name', label: 'User Name' },
+          { name: 'user.email', label: 'User Email' },
+          { name: 'action', label: 'Action' },
+          { name: 'timestamp', label: 'Time Stamps' },
+        ]}
+      />
+
+      <Snackbar open={Boolean(error)} message={error} autoHideDuration={6000} onClose={() => setError('')} />
     </Box>
   );
 };

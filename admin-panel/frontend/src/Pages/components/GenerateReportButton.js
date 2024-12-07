@@ -9,7 +9,9 @@ const GenerateReportButton = ({ data, columns, title }) => {
     doc.setFontSize(18);
     doc.text(title || 'Report', 14, 22);
 
-    const rows = data.map((item) => columns.map((col) => col.accessor(item)));
+    const rows = data.map((item) =>
+      columns.map((col) => typeof col.accessor === 'function' ? col.accessor(item) : item[col.accessor])
+    );
 
     doc.autoTable({
       head: [columns.map((col) => col.label)],
