@@ -10,6 +10,8 @@ const UserSchema = new Schema({
   authProvider: { type: String, enum: ['local', 'google', 'facebook'], default: 'local' },
   providerId: { type: String },
   createdAt: { type: Date, default: Date.now },
+  passwordResetCode: { type: String },
+  passwordResetExpires: { type: Date },
 });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -64,6 +64,30 @@ export const googleLogin = async (credential) => {
   }
 };
 
+
+// Forgot Password API - send reset token to email
+export const forgotPassword = async (email) => {
+  try {
+    console.log(email.email);
+    const response = await API.post('/auths/forgot-password', { email });
+    
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+// Reset Password API - reset password with token and new password
+export const resetPassword = async ({ email, code, newPassword }) => {
+  try {
+    const response = await API.post('/auths/reset-password', { email, code, newPassword });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
 // Staff API functions
 export const addStaff = async (staffData) => {
   try {
@@ -288,6 +312,34 @@ export const fetchWeatherDataByCoords = async (lat, lon) => {
   }
 };
 
+export const getSettings = async () => {
+  try {
+    const response = await API.get('/settings');
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+// Update settings (policy and notification preferences)
+export const updateSettings = async (settings) => {
+  try {
+    const response = await API.put('/settings', settings);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+// Reset settings to default
+export const resetSettings = async () => {
+  try {
+    const response = await API.delete('/settings');
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
 
 // Export error handler for potential custom use
 export { handleApiError };

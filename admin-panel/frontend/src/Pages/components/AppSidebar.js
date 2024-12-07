@@ -11,13 +11,18 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import SettingsIcon from "@mui/icons-material/Settings";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import CloseIcon from "@mui/icons-material/Close";
+import HomeIcon from "@mui/icons-material/Home";
+import PersonIcon from "@mui/icons-material/Person";
+import RoomServiceIcon from "@mui/icons-material/RoomService";
+import HistoryIcon from "@mui/icons-material/History";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import SettingsIcon from "@mui/icons-material/Settings";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import StorageIcon from "@mui/icons-material/Storage";
+import AcUnitIcon from "@mui/icons-material/AcUnit";
 import { useNavigate } from "react-router-dom";
 
 const AppSidebar = ({ isSidebarOpen, toggleSidebar, drawerWidth = 240 }) => {
@@ -28,12 +33,11 @@ const AppSidebar = ({ isSidebarOpen, toggleSidebar, drawerWidth = 240 }) => {
     setOpenMenu((prev) => ({ ...prev, [menu]: !prev[menu] }));
   };
 
-
   const menuItems = [
     { text: "Home", icon: <HomeIcon />, path: "/" },
     {
       text: "Staff Management",
-      icon: <DashboardIcon />,
+      icon: <PersonIcon />,
       children: [
         { text: "Manage Staff", path: "/dashboard/staff-management" },
         { text: "Notify Staff", path: "/dashboard/NotifyStaff" },
@@ -41,31 +45,34 @@ const AppSidebar = ({ isSidebarOpen, toggleSidebar, drawerWidth = 240 }) => {
     },
     {
       text: "Room Management",
-      icon: <DashboardIcon />,
-      path: "/dashboard/room-managment" ,
+      icon: <RoomServiceIcon />,
+      path: "/dashboard/room-managment",
     },
     {
       text: "Service Management",
-      icon: <DashboardIcon />,
-      path: "/dashboard/service-managment" ,
+      icon: <RoomServiceIcon />,
+      path: "/dashboard/service-managment",
     },
     {
       text: "Booking History",
-      icon: <DashboardIcon />,
-      path: "/dashboard/booking-history" ,
+      icon: <HistoryIcon />,
+      path: "/dashboard/booking-history",
     },
-    
     {
       text: "System Logs",
-      icon: <DashboardIcon />,
-      path: "/dashboard/systemLogs" ,
+      icon: <StorageIcon />,
+      path: "/dashboard/systemLogs",
     },
     {
       text: "Weather Conditions",
-      icon: <DashboardIcon />,
-      path: "/dashboard/weatherDashboard" ,
+      icon: <AcUnitIcon />,
+      path: "/dashboard/weatherDashboard",
     },
-
+    {
+      text: "Settings",
+      icon: <SettingsIcon />,
+      path: "/dashboard/settings",
+    },
   ];
 
   return (

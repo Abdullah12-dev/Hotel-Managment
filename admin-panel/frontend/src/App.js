@@ -19,6 +19,7 @@ import ServiceManagement from './Pages/ServiceManagement';
 import BookingHistory from './Pages/BookingHistory';
 import SystemLogs from './Pages/SystemLogs';
 import WeatherDashboard from './Pages/WeatherDashboard';
+import Settings from './Pages/Settings';
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated, loading }) => {
   if (loading) {
@@ -157,6 +158,15 @@ const App = () => {
               </ProtectedRoute>
             ),
           },
+          {
+            path: 'settings',
+            element: (
+              <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
+                <Settings />
+              </ProtectedRoute>
+            ),
+          },
+          
 
           // You can add more nested routes here
         ],
