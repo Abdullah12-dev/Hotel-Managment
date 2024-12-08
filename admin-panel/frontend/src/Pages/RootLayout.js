@@ -23,7 +23,6 @@ const Dashboard = () => {
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("sm")); // Detect large screens
   const [isSidebarOpen, setIsSidebarOpen] = useState(isLargeScreen); // Default to visible on large screens
   const [anchorEl, setAnchorEl] = useState(null); // Anchor element for profile menu
-  const username = "Abdullah"; // Replace with dynamic user data as needed
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -98,11 +97,8 @@ const Dashboard = () => {
               ml: "auto", // Push to the right for all screen sizes
             }}
           >
-            <Typography variant="subtitle1" sx={{ color: "white" }}>
-              {username}
-            </Typography>
             <IconButton onClick={handleMenuOpen}>
-              <Avatar alt={username} src="/static/images/avatar/1.jpg" />
+              <Avatar src="/static/images/avatar/1.jpg" />
             </IconButton>
             <Menu
               anchorEl={anchorEl}
@@ -112,7 +108,6 @@ const Dashboard = () => {
                 mt: "5px", // Adjust menu to appear closer to the profile icon
               }}
             >
-              <MenuItem onClick={handleMenuClose}>Manage Profile</MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
           </Box>
