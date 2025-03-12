@@ -110,7 +110,7 @@ const App = () => {
             ),
           },
           {
-            path: 'NotifyStaffss',
+            path: 'NotifyStaffs',
             element: (
               <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
                 <NotifyStaff />
